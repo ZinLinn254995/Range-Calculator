@@ -1,0 +1,25 @@
+{
+  "name": "RangeCalc",
+  "short_name": "RangeCalc",
+  "description": "Percentage Range Calculator",
+  "start_url": "/Range-Calculator/",
+  "scope": "/Range-Calculator/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#fff7f9",
+  "theme_color": "#be185d",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

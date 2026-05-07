@@ -1,17 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="RangeCalc">
+  <meta name="theme-color" content="#be185d">
+  <link rel="manifest" href="manifest.json">
+  <!-- Apple Touch Icon -->
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <title>RangeCalc</title>
 
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap');
-  *{box-sizing:border-box;margin:0;padding:0}
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
   :root{
     --rose:#e879a0;--rose-light:#fce7f3;--rose-mid:#f9a8d4;--rose-dark:#be185d;
     --mauve:#c084fc;--mauve-light:#faf5ff;--cream:#fff7f9;
     --text:#2d1b3d;--text2:#7c4d8a;--text3:#b07cc0;
     --border:#f0c6df;--shadow:rgba(232,121,160,0.18);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
   }
-  body{font-family:'DM Sans',sans-serif;background:transparent}
-  .wrap{padding:1rem 0.5rem 2rem;max-width:420px;margin:0 auto}
+  html,body{
+    height:100%;
+    width:100%;
+    overflow-x:hidden;
+    font-family:'DM Sans',sans-serif;
+    background:#fff7f9;
+    /* Prevent double-tap zoom */
+    touch-action:manipulation;
+  }
+  body{
+    padding-bottom:calc(var(--safe-bottom) + 8px);
+  }
+  .wrap{padding:1rem 0.75rem 2rem;max-width:430px;margin:0 auto}
 
-  .header{text-align:center;margin-bottom:1.5rem}
+  .header{text-align:center;margin-bottom:1.5rem;padding-top:0.5rem}
   .logo{font-family:'Playfair Display',serif;font-size:22px;font-weight:400;color:var(--rose-dark);letter-spacing:0.5px}
   .logo span{color:var(--mauve)}
   .sub{font-size:12px;color:var(--text3);margin-top:2px;letter-spacing:1px;text-transform:uppercase}
@@ -20,20 +45,35 @@
   .card::before{content:'';position:absolute;top:-30px;right:-30px;width:80px;height:80px;background:radial-gradient(circle,#fce7f3,transparent 70%);pointer-events:none}
 
   .field-label{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;display:flex;align-items:center;gap:5px}
-  .display{background:var(--cream);border:1.5px solid var(--border);border-radius:12px;padding:10px 14px;font-size:26px;font-family:'Playfair Display',serif;color:var(--text);text-align:right;min-height:52px;letter-spacing:1px;position:relative;transition:border-color 0.2s}
+  .display{background:var(--cream);border:1.5px solid var(--border);border-radius:12px;padding:10px 14px;font-size:26px;font-family:'Playfair Display',serif;color:var(--text);text-align:right;min-height:52px;letter-spacing:1px;position:relative;transition:border-color 0.2s;user-select:none;-webkit-user-select:none}
   .display.active{border-color:var(--rose)}
   .display .cursor{display:inline-block;width:1.5px;height:24px;background:var(--rose);margin-left:2px;vertical-align:middle;animation:blink 1s infinite}
   @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
   .display-placeholder{color:var(--text3);font-size:16px;font-family:'DM Sans',sans-serif}
 
   .keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:0.75rem}
-  .key{background:white;border:1px solid var(--border);border-radius:12px;padding:0;height:48px;font-size:18px;font-family:'DM Sans',sans-serif;color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.12s;-webkit-tap-highlight-color:transparent;font-weight:400}
-  .key:active,.key.pressed{transform:scale(0.92);background:var(--rose-light);border-color:var(--rose-mid)}
+  .key{
+    background:white;border:1px solid var(--border);border-radius:12px;padding:0;
+    height:54px;font-size:20px;font-family:'DM Sans',sans-serif;color:var(--text);
+    cursor:pointer;display:flex;align-items:center;justify-content:center;
+    transition:background 0.08s, transform 0.08s;
+    -webkit-tap-highlight-color:transparent;
+    touch-action:manipulation;
+    user-select:none;-webkit-user-select:none;
+    font-weight:400;
+    /* Prevent text selection on rapid taps */
+    -webkit-touch-callout:none;
+  }
+  .key:active{transform:scale(0.91);background:var(--rose-light);border-color:var(--rose-mid)}
   .key.key-op{color:var(--rose-dark);background:var(--rose-light);border-color:var(--rose-mid);font-size:16px}
   .key.key-op:active{background:var(--rose-mid)}
   .key.key-pct{background:linear-gradient(135deg,#fce7f3,#faf5ff);color:var(--mauve);border-color:var(--mauve);font-size:14px;font-weight:500}
   .key.key-zero{grid-column:span 2}
-  .key.key-calc{background:linear-gradient(135deg,var(--rose),var(--mauve));color:white;border:none;font-size:14px;font-weight:500;letter-spacing:0.5px;grid-column:span 3;height:52px;border-radius:14px;box-shadow:0 4px 16px var(--shadow)}
+  .key.key-calc{
+    background:linear-gradient(135deg,var(--rose),var(--mauve));color:white;border:none;
+    font-size:15px;font-weight:500;letter-spacing:0.5px;grid-column:span 3;
+    height:58px;border-radius:14px;box-shadow:0 4px 16px var(--shadow);
+  }
   .key.key-calc:active{transform:scale(0.97)}
 
   .result-card{background:linear-gradient(135deg,#fff0f7,#faf5ff);border:1.5px solid var(--rose-mid);border-radius:16px;padding:1rem 1.25rem;margin-bottom:1rem}
@@ -49,32 +89,32 @@
 
   .section-title{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
   .clear-btn{font-size:11px;color:var(--rose);cursor:pointer;background:none;border:none;font-family:'DM Sans',sans-serif;padding:0;letter-spacing:0.5px}
-  .clear-btn:hover{color:var(--rose-dark)}
 
   .history-list{display:flex;flex-direction:column;gap:7px;max-height:220px;overflow-y:auto}
   .history-list::-webkit-scrollbar{width:3px}
   .history-list::-webkit-scrollbar-thumb{background:var(--rose-mid);border-radius:2px}
-  .hist-item{background:white;border:1px solid var(--border);border-radius:12px;padding:9px 12px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:border-color 0.15s}
-  .hist-item:hover{border-color:var(--rose-mid)}
+  .hist-item{background:white;border:1px solid var(--border);border-radius:12px;padding:9px 12px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:border-color 0.15s;touch-action:manipulation}
+  .hist-item:active{border-color:var(--rose-mid)}
   .hist-meta{flex:1;min-width:0}
   .hist-nums{font-size:13px;color:var(--text);font-weight:500}
   .hist-sub{font-size:11px;color:var(--text3);margin-top:1px}
   .hist-range{font-family:'Playfair Display',serif;font-size:13px;color:var(--text2);white-space:nowrap}
-  .hist-del{background:none;border:none;cursor:pointer;color:var(--text3);padding:2px 4px;border-radius:6px;font-size:14px;line-height:1;transition:color 0.12s}
-  .hist-del:hover{color:var(--rose)}
+  .hist-del{background:none;border:none;cursor:pointer;color:var(--text3);padding:6px 8px;border-radius:6px;font-size:16px;line-height:1;transition:color 0.12s;touch-action:manipulation}
+  .hist-del:active{color:var(--rose)}
   .empty-state{text-align:center;color:var(--text3);font-size:13px;padding:1.5rem 0;font-style:italic}
 
   .tab-row{display:flex;gap:6px;margin-bottom:1rem}
-  .tab{flex:1;padding:8px;border-radius:10px;border:1px solid var(--border);background:white;font-size:12px;color:var(--text3);cursor:pointer;text-align:center;font-family:'DM Sans',sans-serif;letter-spacing:0.5px;text-transform:uppercase;transition:all 0.15s}
+  .tab{flex:1;padding:10px;border-radius:10px;border:1px solid var(--border);background:white;font-size:12px;color:var(--text3);cursor:pointer;text-align:center;font-family:'DM Sans',sans-serif;letter-spacing:0.5px;text-transform:uppercase;transition:all 0.15s;touch-action:manipulation;user-select:none;-webkit-user-select:none}
   .tab.active{background:var(--rose-light);border-color:var(--rose-mid);color:var(--rose-dark);font-weight:500}
 
-  .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--rose-dark);color:white;padding:8px 18px;border-radius:20px;font-size:13px;opacity:0;transition:all 0.3s;pointer-events:none;z-index:99}
+  .toast{position:fixed;bottom:calc(20px + var(--safe-bottom));left:50%;transform:translateX(-50%) translateY(20px);background:var(--rose-dark);color:white;padding:8px 18px;border-radius:20px;font-size:13px;opacity:0;transition:all 0.3s;pointer-events:none;z-index:99}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
   .petal{position:absolute;pointer-events:none;font-size:10px;animation:fall 1.2s ease-out forwards;opacity:0.7}
   @keyframes fall{0%{transform:translateY(-10px) rotate(0deg);opacity:0.8}100%{transform:translateY(60px) rotate(180deg);opacity:0}}
 </style>
-
+</head>
+<body>
 <div class="wrap">
   <div class="header">
     <div class="logo">Range<span>✦</span>Calc</div>
@@ -131,6 +171,13 @@
 <div class="toast" id="toast"></div>
 
 <script>
+// Register Service Worker for offline use
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('sw.js').catch(()=>{});
+  });
+}
+
 let numVal='', pctVal='', active='num';
 const dispNum=document.getElementById('disp-num');
 const dispPct=document.getElementById('disp-pct');
@@ -228,7 +275,7 @@ function renderHistory(){
         <div class="hist-sub">${new Date(h.id).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</div>
       </div>
       <div class="hist-range">${fmt(h.mn)} – ${fmt(h.mx)}</div>
-      <button class="hist-del" onclick="event.stopPropagation();delHist(${h.id})"><i class="ti ti-x" style="font-size:13px"></i></button>
+      <button class="hist-del" onclick="event.stopPropagation();delHist(${h.id})">✕</button>
     </div>`).join('');
 }
 
@@ -287,3 +334,5 @@ dispPct.addEventListener('click',()=>{active='pct';updateDisplay()});
 updateDisplay();
 renderHistory();
 </script>
+</body>
+</html>
