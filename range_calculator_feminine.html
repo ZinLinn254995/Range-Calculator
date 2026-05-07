@@ -1,0 +1,289 @@
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --rose:#e879a0;--rose-light:#fce7f3;--rose-mid:#f9a8d4;--rose-dark:#be185d;
+    --mauve:#c084fc;--mauve-light:#faf5ff;--cream:#fff7f9;
+    --text:#2d1b3d;--text2:#7c4d8a;--text3:#b07cc0;
+    --border:#f0c6df;--shadow:rgba(232,121,160,0.18);
+  }
+  body{font-family:'DM Sans',sans-serif;background:transparent}
+  .wrap{padding:1rem 0.5rem 2rem;max-width:420px;margin:0 auto}
+
+  .header{text-align:center;margin-bottom:1.5rem}
+  .logo{font-family:'Playfair Display',serif;font-size:22px;font-weight:400;color:var(--rose-dark);letter-spacing:0.5px}
+  .logo span{color:var(--mauve)}
+  .sub{font-size:12px;color:var(--text3);margin-top:2px;letter-spacing:1px;text-transform:uppercase}
+
+  .card{background:white;border-radius:20px;border:1px solid var(--border);padding:1.25rem;margin-bottom:1rem;position:relative;overflow:hidden}
+  .card::before{content:'';position:absolute;top:-30px;right:-30px;width:80px;height:80px;background:radial-gradient(circle,#fce7f3,transparent 70%);pointer-events:none}
+
+  .field-label{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;display:flex;align-items:center;gap:5px}
+  .display{background:var(--cream);border:1.5px solid var(--border);border-radius:12px;padding:10px 14px;font-size:26px;font-family:'Playfair Display',serif;color:var(--text);text-align:right;min-height:52px;letter-spacing:1px;position:relative;transition:border-color 0.2s}
+  .display.active{border-color:var(--rose)}
+  .display .cursor{display:inline-block;width:1.5px;height:24px;background:var(--rose);margin-left:2px;vertical-align:middle;animation:blink 1s infinite}
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+  .display-placeholder{color:var(--text3);font-size:16px;font-family:'DM Sans',sans-serif}
+
+  .keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:0.75rem}
+  .key{background:white;border:1px solid var(--border);border-radius:12px;padding:0;height:48px;font-size:18px;font-family:'DM Sans',sans-serif;color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.12s;-webkit-tap-highlight-color:transparent;font-weight:400}
+  .key:active,.key.pressed{transform:scale(0.92);background:var(--rose-light);border-color:var(--rose-mid)}
+  .key.key-op{color:var(--rose-dark);background:var(--rose-light);border-color:var(--rose-mid);font-size:16px}
+  .key.key-op:active{background:var(--rose-mid)}
+  .key.key-pct{background:linear-gradient(135deg,#fce7f3,#faf5ff);color:var(--mauve);border-color:var(--mauve);font-size:14px;font-weight:500}
+  .key.key-zero{grid-column:span 2}
+  .key.key-calc{background:linear-gradient(135deg,var(--rose),var(--mauve));color:white;border:none;font-size:14px;font-weight:500;letter-spacing:0.5px;grid-column:span 3;height:52px;border-radius:14px;box-shadow:0 4px 16px var(--shadow)}
+  .key.key-calc:active{transform:scale(0.97)}
+
+  .result-card{background:linear-gradient(135deg,#fff0f7,#faf5ff);border:1.5px solid var(--rose-mid);border-radius:16px;padding:1rem 1.25rem;margin-bottom:1rem}
+  .result-title{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px}
+  .result-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+  .result-label{font-size:13px;color:var(--text2);display:flex;align-items:center;gap:6px}
+  .result-dot{width:8px;height:8px;border-radius:50%}
+  .result-value{font-family:'Playfair Display',serif;font-size:20px;color:var(--text);font-weight:400}
+  .result-range{margin-top:8px;padding-top:8px;border-top:1px solid var(--border);display:flex;align-items:center;gap:8px}
+  .range-bar{flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden;position:relative}
+  .range-fill{position:absolute;left:0;top:0;height:100%;background:linear-gradient(90deg,var(--rose),var(--mauve));border-radius:3px;width:100%}
+  .range-pct{font-size:12px;color:var(--text3)}
+
+  .section-title{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+  .clear-btn{font-size:11px;color:var(--rose);cursor:pointer;background:none;border:none;font-family:'DM Sans',sans-serif;padding:0;letter-spacing:0.5px}
+  .clear-btn:hover{color:var(--rose-dark)}
+
+  .history-list{display:flex;flex-direction:column;gap:7px;max-height:220px;overflow-y:auto}
+  .history-list::-webkit-scrollbar{width:3px}
+  .history-list::-webkit-scrollbar-thumb{background:var(--rose-mid);border-radius:2px}
+  .hist-item{background:white;border:1px solid var(--border);border-radius:12px;padding:9px 12px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:border-color 0.15s}
+  .hist-item:hover{border-color:var(--rose-mid)}
+  .hist-meta{flex:1;min-width:0}
+  .hist-nums{font-size:13px;color:var(--text);font-weight:500}
+  .hist-sub{font-size:11px;color:var(--text3);margin-top:1px}
+  .hist-range{font-family:'Playfair Display',serif;font-size:13px;color:var(--text2);white-space:nowrap}
+  .hist-del{background:none;border:none;cursor:pointer;color:var(--text3);padding:2px 4px;border-radius:6px;font-size:14px;line-height:1;transition:color 0.12s}
+  .hist-del:hover{color:var(--rose)}
+  .empty-state{text-align:center;color:var(--text3);font-size:13px;padding:1.5rem 0;font-style:italic}
+
+  .tab-row{display:flex;gap:6px;margin-bottom:1rem}
+  .tab{flex:1;padding:8px;border-radius:10px;border:1px solid var(--border);background:white;font-size:12px;color:var(--text3);cursor:pointer;text-align:center;font-family:'DM Sans',sans-serif;letter-spacing:0.5px;text-transform:uppercase;transition:all 0.15s}
+  .tab.active{background:var(--rose-light);border-color:var(--rose-mid);color:var(--rose-dark);font-weight:500}
+
+  .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--rose-dark);color:white;padding:8px 18px;border-radius:20px;font-size:13px;opacity:0;transition:all 0.3s;pointer-events:none;z-index:99}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  .petal{position:absolute;pointer-events:none;font-size:10px;animation:fall 1.2s ease-out forwards;opacity:0.7}
+  @keyframes fall{0%{transform:translateY(-10px) rotate(0deg);opacity:0.8}100%{transform:translateY(60px) rotate(180deg);opacity:0}}
+</style>
+
+<div class="wrap">
+  <div class="header">
+    <div class="logo">Range<span>✦</span>Calc</div>
+    <div class="sub">Percentage Range Calculator</div>
+  </div>
+
+  <div class="tab-row">
+    <div class="tab active" onclick="switchTab('calc')">Calculator</div>
+    <div class="tab" onclick="switchTab('history')">History</div>
+  </div>
+
+  <div id="tab-calc">
+    <div class="card">
+      <div class="field-label">📍 Base Number</div>
+      <div class="display" id="disp-num"><span class="display-placeholder">enter number...</span></div>
+    </div>
+    <div class="card">
+      <div class="field-label">💫 Percentage</div>
+      <div class="display" id="disp-pct"><span class="display-placeholder">enter %...</span></div>
+    </div>
+
+    <div class="keypad">
+      <button class="key" onclick="tap('7')">7</button>
+      <button class="key" onclick="tap('8')">8</button>
+      <button class="key" onclick="tap('9')">9</button>
+      <button class="key" onclick="tap('4')">4</button>
+      <button class="key" onclick="tap('5')">5</button>
+      <button class="key" onclick="tap('6')">6</button>
+      <button class="key" onclick="tap('1')">1</button>
+      <button class="key" onclick="tap('2')">2</button>
+      <button class="key" onclick="tap('3')">3</button>
+      <button class="key key-zero" onclick="tap('0')">0</button>
+      <button class="key key-op" onclick="tap('.')">·</button>
+      <button class="key key-op" onclick="tapDel()">⌫</button>
+      <button class="key key-pct" onclick="switchField()">↕ switch field</button>
+      <button class="key key-op" onclick="tapClear()">C</button>
+      <button class="key key-calc" onclick="calculate()">✦ Calculate Range</button>
+    </div>
+  </div>
+
+  <div id="tab-history" style="display:none">
+    <div class="card" style="padding:1rem">
+      <div class="section-title">
+        <span>Recent calculations</span>
+        <button class="clear-btn" onclick="clearAll()">clear all</button>
+      </div>
+      <div class="history-list" id="hist-list"><div class="empty-state">No history yet ✨</div></div>
+    </div>
+  </div>
+
+  <div id="result-area"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let numVal='', pctVal='', active='num';
+const dispNum=document.getElementById('disp-num');
+const dispPct=document.getElementById('disp-pct');
+let history=[];
+try{history=JSON.parse(localStorage.getItem('rng_hist')||'[]')}catch(e){}
+
+function updateDisplay(){
+  const cursor='<span class="cursor"></span>';
+  dispNum.innerHTML=active==='num'
+    ?(numVal?numVal+cursor:'<span class="display-placeholder">enter number...</span>')
+    :(numVal||'<span class="display-placeholder">—</span>');
+  dispPct.innerHTML=active==='pct'
+    ?(pctVal?pctVal+cursor:'<span class="display-placeholder">enter %...</span>')
+    :(pctVal||'<span class="display-placeholder">—</span>');
+  dispNum.classList.toggle('active',active==='num');
+  dispPct.classList.toggle('active',active==='pct');
+}
+
+function switchField(){
+  active=active==='num'?'pct':'num';
+  updateDisplay();
+}
+
+function tap(v){
+  if(active==='num'){
+    if(v==='.'&&numVal.includes('.'))return;
+    if(numVal.length>=14)return;
+    numVal+=v;
+  }else{
+    if(v==='.'&&pctVal.includes('.'))return;
+    if(pctVal.length>=8)return;
+    pctVal+=v;
+  }
+  updateDisplay();
+}
+
+function tapDel(){
+  if(active==='num') numVal=numVal.slice(0,-1);
+  else pctVal=pctVal.slice(0,-1);
+  updateDisplay();
+}
+
+function tapClear(){
+  if(active==='num') numVal='';
+  else pctVal='';
+  updateDisplay();
+}
+
+function fmt(n){
+  if(Number.isInteger(n)) return n.toLocaleString();
+  return parseFloat(n.toFixed(4)).toLocaleString(undefined,{maximumFractionDigits:4});
+}
+
+function calculate(){
+  const n=parseFloat(numVal), p=parseFloat(pctVal);
+  if(isNaN(n)||isNaN(p)){showToast('Please enter both values 💕');return;}
+  if(p<0||p>100){showToast('Percentage must be 0–100');return;}
+  const change=n*(p/100), mn=n-change, mx=n+change;
+  const entry={n,p,mn,mx,id:Date.now()};
+  history.unshift(entry);
+  if(history.length>50)history.pop();
+  try{localStorage.setItem('rng_hist',JSON.stringify(history))}catch(e){}
+  showResult(entry);
+  renderHistory();
+  spawnPetals();
+}
+
+function showResult(e){
+  const ra=document.getElementById('result-area');
+  ra.innerHTML=`<div class="result-card">
+    <div class="result-title">✦ Range Result</div>
+    <div class="result-row">
+      <span class="result-label"><span class="result-dot" style="background:#e879a0"></span>Minimum</span>
+      <span class="result-value">${fmt(e.mn)}</span>
+    </div>
+    <div class="result-row">
+      <span class="result-label"><span class="result-dot" style="background:#c084fc"></span>Maximum</span>
+      <span class="result-value">${fmt(e.mx)}</span>
+    </div>
+    <div class="result-range">
+      <span class="range-pct" style="min-width:28px">${e.p}%</span>
+      <div class="range-bar"><div class="range-fill"></div></div>
+      <span class="range-pct">±${fmt(e.n*e.p/100)}</span>
+    </div>
+  </div>`;
+}
+
+function renderHistory(){
+  const el=document.getElementById('hist-list');
+  if(!history.length){el.innerHTML='<div class="empty-state">No history yet ✨</div>';return;}
+  el.innerHTML=history.map(h=>`
+    <div class="hist-item" onclick="loadHist(${h.id})">
+      <div class="hist-meta">
+        <div class="hist-nums">${fmt(h.n)} ± ${h.p}%</div>
+        <div class="hist-sub">${new Date(h.id).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</div>
+      </div>
+      <div class="hist-range">${fmt(h.mn)} – ${fmt(h.mx)}</div>
+      <button class="hist-del" onclick="event.stopPropagation();delHist(${h.id})"><i class="ti ti-x" style="font-size:13px"></i></button>
+    </div>`).join('');
+}
+
+function loadHist(id){
+  const h=history.find(x=>x.id===id);
+  if(!h)return;
+  numVal=String(h.n); pctVal=String(h.p); active='num';
+  updateDisplay(); showResult(h);
+  switchTab('calc');
+}
+
+function delHist(id){
+  history=history.filter(x=>x.id!==id);
+  try{localStorage.setItem('rng_hist',JSON.stringify(history))}catch(e){}
+  renderHistory();
+  showToast('Deleted 🗑️');
+}
+
+function clearAll(){
+  if(!history.length)return;
+  history=[];
+  try{localStorage.setItem('rng_hist','[]')}catch(e){}
+  renderHistory();
+  showToast('All cleared ✨');
+}
+
+function switchTab(t){
+  document.getElementById('tab-calc').style.display=t==='calc'?'':'none';
+  document.getElementById('tab-history').style.display=t==='history'?'':'none';
+  document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('active',(i===0&&t==='calc')||(i===1&&t==='history')));
+  if(t==='history')renderHistory();
+}
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+function spawnPetals(){
+  const petals=['🌸','💕','✨','🌷','💗'];
+  for(let i=0;i<5;i++){
+    const p=document.createElement('div');
+    p.className='petal';
+    p.textContent=petals[Math.floor(Math.random()*petals.length)];
+    p.style.left=Math.random()*80+10+'%';
+    p.style.top='40%';
+    p.style.animationDelay=i*0.1+'s';
+    document.querySelector('.wrap').appendChild(p);
+    setTimeout(()=>p.remove(),1500);
+  }
+}
+
+dispNum.addEventListener('click',()=>{active='num';updateDisplay()});
+dispPct.addEventListener('click',()=>{active='pct';updateDisplay()});
+updateDisplay();
+renderHistory();
+</script>
